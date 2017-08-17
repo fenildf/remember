@@ -52,7 +52,8 @@ def show_index():
 @app.route('/tongji')
 def show_contji():
     count = EnglishWords.query.filter(EnglishWords.term_frequency > 50).count()
-    pass
+
+    return render_template('tongji.html')
 
 
 if __name__ == '__main__':
