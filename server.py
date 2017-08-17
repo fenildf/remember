@@ -66,7 +66,7 @@ def show_index():
 
 
 @app.route('/tongji')
-def show_contji():
+def show_tontji():
     count = []
     categories = []
 
@@ -89,4 +89,4 @@ def show_contji():
 
 if __name__ == '__main__':
     # show_index()
-    app.run(host='0.0.0.0')
+    app.run(host='127.0.0.1')
