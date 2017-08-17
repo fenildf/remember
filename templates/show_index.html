@@ -1,34 +1,91 @@
 {% extends "layout.html" %}
 {% block body %}
-<div class="container-fluid">
-    <div class="row-fluid">
-        <div class="span12">
-            <div class="progress">
-                <div class="bar" style="width: 60%;"></div>
-            </div>
-            {% include 'navbar.html' %}
+    <div class="container-fluid">
+        <div class="row-fluid">
+            <div class="span12">
+                {% include 'navbar.html' %}
 
-            <div class="row-fluid">
-                <div class="hero-unit">
-                    <h1>Heading</h1>
-                    <p>Tagline</p>
-                    <p>
-                        <a class="btn btn-primary btn-large">
-                            Learn more
-                        </a>
-                    </p>
+                <div class="row-fluid">
+
                 </div>
-            </div>
-            <div class="row-fluid">
-                <div class="span12" id="item-img">
-                    <img alt="140x140" src="http://www.newsnish.com/wp-content/uploads/2015/01/samsung-aio-DP700A3B-A02US-main-angle-lg.jpg" />
-                    <img alt="140x140" src="http://www.newsnish.com/wp-content/uploads/2015/01/samsung-aio-DP700A3B-A02US-main-angle-lg.jpg" />
-                    <img alt="140x140" src="http://www.newsnish.com/wp-content/uploads/2015/01/samsung-aio-DP700A3B-A02US-main-angle-lg.jpg" />
-                    <img alt="140x140" src="http://www.newsnish.com/wp-content/uploads/2015/01/samsung-aio-DP700A3B-A02US-main-angle-lg.jpg" />
-                    <img alt="140x140" src="http://www.newsnish.com/wp-content/uploads/2015/01/samsung-aio-DP700A3B-A02US-main-angle-lg.jpg" />
+                <div class="row-fluid">
+                    <div class="span12">
+                        <div class="span8" id="item-img">
+                            {% for image in data['word'].images %}
+                                <img src="{{ image }}"/>
+                            {% endfor %}
+                        </div>
+                        <div class="span4">
+                            <h2>
+                                {{ data['word'].word }}
+                            </h2>
+                            <h3>
+                                <span>美式：{{ data['word'].ext['us-phonetic'] }}</span>
+                            </h3>
+                            <h3>
+                                {{ data['word'].ext['translation'] }}
+                            </h3>
+                            <div id="jquery_jplayer_1" class="cp-jplayer"></div>
+                            <div id="cp_container_1" class="cp-container">
+                                <div class="cp-buffer-holder">
+                                    <div class="cp-buffer-1"></div>
+                                    <div class="cp-buffer-2"></div>
+                                </div>
+                                <div class="cp-progress-holder">
+                                    <div class="cp-progress-1"></div>
+                                    <div class="cp-progress-2"></div>
+                                </div>
+                                <div class="cp-circle-control"></div>
+                                <ul class="cp-controls">
+                                    <li><a class="cp-play" tabindex="1">play</a></li>
+                                    <li><a class="cp-pause" style="display:none;" tabindex="1">pause</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='jplayer/lib/circle-player/skin/circle.player.css') }}">
+    <script type="text/javascript"
+            src="{{ url_for('static', filename='jplayer/dist/jplayer/jquery.jplayer.min.js') }}"></script>
+    <script type="text/javascript"
+            src="{{ url_for('static', filename='jplayer/lib/circle-player/js/jquery.transform2d.js') }}"></script>
+    <script type="text/javascript"
+            src="{{ url_for('static', filename='jplayer/lib/circle-player/js/jquery.grab.js') }}"></script>
+    <script type="text/javascript"
+            src="{{ url_for('static', filename='jplayer/lib/circle-player/js/mod.csstransforms.min.js') }}"></script>
+    <script type="text/javascript"
+            src="{{ url_for('static', filename='jplayer/lib/circle-player/js/circle.player.js') }}"></script>
+
+    <script type="text/javascript">
+
+        $(document).keydown(function (event) {
+            if (event.keyCode == 32) {
+                location.reload();
+            }
+        });
+        //<![CDATA[
+
+        $(document).ready(function () {
+
+            var myCirclePlayer = new CirclePlayer("#jquery_jplayer_1",
+                {
+                    m4a: "{{ data['word'].ext['pronunciation'][3] }}"
+
+                }, {
+                    cssSelectorAncestor: "#cp_container_1",
+                    swfPath: "{{ url_for('static', filename='jplayer/dist/jplayer') }}",
+                    wmode: "window",
+                    keyEnabled: true,
+                    canplay: function () {
+                        $("#jquery_jplayer_1").jPlayer("play");
+                    }
+                });
+        });
+
+        //]]>
+    </script>
 {% endblock %}
