@@ -38,11 +38,22 @@ class EnglishWords(db.Model):
     def __repr__(self):
         return '<EnglishWords %r>' % self.word
 
-
 @app.route('/')
+def home_page():
+    redirect(url_for(show_index))
+
+@app.route('/index', methods=['GET'])
 def show_index():
-    min_word = EnglishWords.query.filter(EnglishWords.term_frequency > 100).order_by(EnglishWords.id).first()
-    max_word = EnglishWords.query.filter(EnglishWords.term_frequency > 100).order_by(EnglishWords.id.desc()).first()
+
+    from_num = request.args.get('from_num', 1)
+    to_num = request.args.get('to_num', 100)
+
+    min_word = EnglishWords.query.filter(
+        and_(EnglishWords.term_frequency >= from_num, EnglishWords.term_frequency <= to_num)).order_by(
+        EnglishWords.id).first()
+    max_word = EnglishWords.query.filter(
+        and_(EnglishWords.term_frequency >= from_num, EnglishWords.term_frequency <= to_num)).order_by(
+            EnglishWords.id.desc()).first()
 
     random_id = random.randint(min_word.id, max_word.id)
 
@@ -51,16 +62,18 @@ def show_index():
     ext = json.loads(word.ext)
     images = json.loads(word.images)
 
+    # 删除未找到翻译的单词
     if not ext['translation']:
         db.session.delete(word)
         db.session.commit()
-        print(word)
 
     word.images = images
     word.ext = ext
 
     data = {}
     data['word'] = word
+    data['from_num'] = from_num
+    data['to_num'] = to_num
 
     return render_template('show_index.html', data=data)
 
@@ -74,7 +87,7 @@ def show_tontji():
         s = i * 10 - 9
         e = i * 10
 
-        categories.append('-'.join([str(s), str(e)]))
+        categories.append('/'.join([str(s), str(e)]))
 
         item_count = EnglishWords.query.filter(
             and_(EnglishWords.term_frequency >= s, EnglishWords.term_frequency < e)).count()
@@ -82,7 +95,7 @@ def show_tontji():
 
     item_count = EnglishWords.query.filter(EnglishWords.term_frequency >= 100).count()
     count.append(item_count)
-    categories.append('>100')
+    categories.append('100/~')
 
     return render_template('tongji.html', count=count, categories=categories)
 
