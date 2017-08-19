@@ -2,12 +2,14 @@
 # -*- coding:utf-8 -*-
 
 # all the imports
+import requests
 import json
 from flask import Flask, request, session, g, redirect, url_for, \
     abort, render_template, flash
 from flask_sqlalchemy import SQLAlchemy
 import random
 from sqlalchemy import and_
+from my_tools import translate_english, bing_image_search_by_requests
 
 # configuration
 SQLALCHEMY_DATABASE_URI = 'sqlite:///./databases.db'
@@ -22,53 +24,42 @@ app.config.from_object(__name__)
 db = SQLAlchemy(app)
 
 
-class EnglishWords(db.Model):
+class Words(db.Model):
     id = db.Column('id', db.Integer, primary_key=True, autoincrement=True)
     word = db.Column('word', db.String(50))
     term_frequency = db.Column('term_frequency', db.Integer)
-    images = db.Column('images', db.Text)
-    ext = db.Column('ext', db.Text)
 
-    def __init__(self, word, term_frequency, images, ext):
+    def __init__(self, word, term_frequency):
         self.word = word
         self.term_frequency = term_frequency
-        self.images = images
-        self.ext = ext
 
     def __repr__(self):
         return '<EnglishWords %r>' % self.word
 
+
 @app.route('/')
 def home_page():
-    redirect(url_for(show_index))
+    return redirect(url_for('show_index'))
+
 
 @app.route('/index', methods=['GET'])
 def show_index():
-
     from_num = request.args.get('from_num', 1)
     to_num = request.args.get('to_num', 100)
 
-    min_word = EnglishWords.query.filter(
-        and_(EnglishWords.term_frequency >= from_num, EnglishWords.term_frequency <= to_num)).order_by(
-        EnglishWords.id).first()
-    max_word = EnglishWords.query.filter(
-        and_(EnglishWords.term_frequency >= from_num, EnglishWords.term_frequency <= to_num)).order_by(
-            EnglishWords.id.desc()).first()
+    min_word = Words.query.filter(
+        and_(Words.term_frequency >= from_num, Words.term_frequency <= to_num)).order_by(
+        Words.id).first()
+    max_word = Words.query.filter(
+        and_(Words.term_frequency >= from_num, Words.term_frequency <= to_num)).order_by(
+        Words.id.desc()).first()
 
     random_id = random.randint(min_word.id, max_word.id)
 
-    word = EnglishWords.query.filter(EnglishWords.id >= random_id).first()
+    word = Words.query.filter(Words.id >= random_id).first()
 
-    ext = json.loads(word.ext)
-    images = json.loads(word.images)
-
-    # 删除未找到翻译的单词
-    if not ext['translation']:
-        db.session.delete(word)
-        db.session.commit()
-
-    word.images = images
-    word.ext = ext
+    word.images = bing_image_search_by_requests(word.word)
+    word.ext = translate_english(word.word)
 
     data = {}
     data['word'] = word
@@ -89,11 +80,11 @@ def show_tontji():
 
         categories.append('/'.join([str(s), str(e)]))
 
-        item_count = EnglishWords.query.filter(
-            and_(EnglishWords.term_frequency >= s, EnglishWords.term_frequency < e)).count()
+        item_count = Words.query.filter(
+            and_(Words.term_frequency >= s, Words.term_frequency < e)).count()
         count.append(item_count)
 
-    item_count = EnglishWords.query.filter(EnglishWords.term_frequency >= 100).count()
+    item_count = Words.query.filter(Words.term_frequency >= 100).count()
     count.append(item_count)
     categories.append('100/~')
 
