@@ -1,4 +1,4 @@
-my_project
+venv
 *.py[cod]
 .idea
 *.log

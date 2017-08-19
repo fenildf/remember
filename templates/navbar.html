@@ -43,9 +43,9 @@
                     {#                    </li>#}
                     <li>
                         <form class="navbar-form pull-left" action="{{ url_for('show_index') }}">
-                            <input type="text" name="from_num" value="{{ data['from_num'] }}" style="width: 80px" class="search-query"
+                            <input type="text" name="from_num" value="{% if data %} {{ data['from_num'] }} {% endif %}" style="width: 80px" class="search-query"
                                    placeholder="词频下限">
-                            <input type="text" name="to_num" value="{{ data['to_num'] }}" style="width: 80px" class="search-query"
+                            <input type="text" name="to_num" value="{% if data %} {{ data['to_num'] }} {% endif %}" style="width: 80px" class="search-query"
                                    placeholder="词频上限">
                             <button type="submit" class="btn">Submit</button>
                         </form>
