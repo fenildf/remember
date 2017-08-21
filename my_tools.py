@@ -8,6 +8,11 @@ from functools import lru_cache
 
 @lru_cache()
 def get_requests_cookies(url):
+    '''
+    缓存 cookies
+    :param url:
+    :return:
+    '''
     s = requests.Session()
     return s.get(url).cookies
 
