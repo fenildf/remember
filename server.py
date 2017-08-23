@@ -43,7 +43,7 @@ def home_page():
 
 @app.route('/index', methods=['GET'])
 def show_index():
-    from_num = request.args.get('from_num', 1)
+    from_num = request.args.get('from_num', 50)
     to_num = request.args.get('to_num', 100)
 
     min_word = Words.query.filter(
