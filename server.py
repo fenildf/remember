@@ -92,4 +92,4 @@ def show_tontji():
 
 if __name__ == '__main__':
     # show_index()
-    app.run(host='0.0.0.0', port=8080)
+    app.run()
